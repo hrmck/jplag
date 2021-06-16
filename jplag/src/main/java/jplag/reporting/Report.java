@@ -157,10 +157,12 @@ public class Report {
         writeDistribution(htmlFile);
 
         String csvFile = "matches_avg.csv";
+        String pairReportFile = "pair_report.csv";
 
         writeLinksToComparisons(htmlFile, "<H4>" + msg.getString("Report.MatchesAvg"), csvFile);
 
         writeMatchesCSV(csvFile);
+        writePairReportCSV(pairReportFile);
 
         writeIndexEnd(htmlFile);
 
@@ -303,6 +305,36 @@ public class Report {
                 writer.write(submissionNameA + ";");
                 writer.write(submissionNameB + ";");
                 writer.write((((int) (comparison.percent() * 10)) / (float) 10) + ";");
+                writer.write("\n");
+            }
+
+            writer.flush();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                writer.close();
+            } catch (Exception ignored) {
+            }
+        }
+    }
+
+    private void writePairReportCSV(String fileName) {
+        FileWriter writer = null;
+        File csvFile = new File(reportDir, fileName);
+        List<JPlagComparison> comparisons = result.getComparisons();
+
+        try {
+            csvFile.createNewFile();
+            writer = new FileWriter(csvFile);
+
+            for (JPlagComparison comparison : comparisons) {
+                String submissionNameA = comparison.firstSubmission.name;
+                String submissionNameB = comparison.secondSubmission.name;
+
+                writer.write(submissionNameA + ";");
+                writer.write(submissionNameB + ";");
+                writer.write("match" + getComparisonIndex(comparison) + ".html;");
                 writer.write("\n");
             }
 
